@@ -57,8 +57,37 @@ def load_data():
         for i in range(max_len - len(one_data)):
             one_data.append(542255)
             # print len(one_data)
-    return data_by_id, data_label
+    return np.array(data_by_id), np.array(data_label)
 
+def shuffled_data(x, y):
+    np.random.seed(10)
+    shuffled_indices = np.random.permutation(np.arange(len(y)))
+    x_shuffled = x[shuffled_indices]
+    y_shuffled = y[shuffled_indices]
+    train_data_num = len(y)/100 * 95
+    data_train, train_label = x_shuffled[:train_data_num], y_shuffled[:train_data_num]
+    data_test, test_label = x_shuffled[train_data_num:], y_shuffled[train_data_num:]
+    return data_train, train_label, data_test, test_label
+
+
+def batch_iter(data, batch_size, num_epochs, shuffle=True):
+    """
+    Generates a batch iterator for a dataset.
+    """
+    data = np.array(data)
+    data_size = len(data)
+    num_batches_per_epoch = int(len(data)/batch_size) + 1
+    for epoch in range(num_epochs):
+        # Shuffle the data at each epoch
+        if shuffle:
+            shuffle_indices = np.random.permutation(np.arange(data_size))
+            shuffled_data = data[shuffle_indices]
+        else:
+            shuffled_data = data
+        for batch_num in range(num_batches_per_epoch):
+            start_index = batch_num * batch_size
+            end_index = min((batch_num + 1) * batch_size, data_size)
+            yield shuffled_data[start_index:end_index]
 
 if __name__ == "__main__":
     # wordtoix, ixtoword = load_word_ix()

@@ -12,7 +12,7 @@ class TextCNNModel(object):
     短文本分类卷积神经网络模型
     """
 
-    def __init__(self, sequence_length, num_classes, vocab_size, word_vector_size, filter_sizes, num_filters,
+    def __init__(self, sequence_length, num_classes, word_vector_size, filter_sizes, num_filters,
                  l2_reg_lamda=0.0):
         """
         :param sequence_length: 文本中包含词语的个数，一般指最大值
@@ -41,7 +41,7 @@ class TextCNNModel(object):
         # 卷积层
         for filter_size in filter_sizes:
             filter_shape = [filter_size, word_vector_size, 1, num_filters]
-            W_conv = tf.Variable(tf.truncated_normal(filter_shape, stddev=0.5), name='W_conv_' + str(filter_size))
+            W_conv = tf.Variable(tf.truncated_normal(filter_shape, stddev=0.5), name='W_conv')
             b_conv = tf.Variable(tf.constant(0.1, shape=[num_filters], name='b_conv_' + str(filter_size)))
             conv = tf.nn.conv2d(self.embedded_chars_expanded, W_conv, strides=[1, 1, 1, 1], padding='VALID',
                                 name='conv')
@@ -54,23 +54,21 @@ class TextCNNModel(object):
 
         # 合并所有池化层输出
         num_filters_total = num_filters * len(filter_sizes)
-        self.h_pool = tf.concat(3, pooled_outputs)
+        self.h_pool = tf.concat(pooled_outputs, 3)
         self.h_pool_flat = tf.reshape(self.h_pool, [-1, num_filters_total])
-
         # dropout层
-        self.h_dropout = tf.nn.dropout(self.h_pool_flat, [-1, num_filters_total])
+        self.h_dropout = tf.nn.dropout(self.h_pool_flat, self.dropout)
 
         # Final (unnormalized) scores and predictions
-        W_s = tf.get_variable('W_s', shape=[num_filters_total, num_classes],
-                              initializer=tf.contrib.xavier_initializer())
+        W_s = tf.Variable(tf.truncated_normal([num_filters_total, num_classes], stddev=0.1), name='W_s')
         b_s = tf.Variable(tf.constant(0.1, shape=[num_classes]), name='b_s')
         l2_loss += tf.nn.l2_loss(W_s)
         l2_loss += tf.nn.l2_loss(b_s)
-        self.scores = tf.nn.xw_plus_b(self.h_dropout, W_s, b_s)
+        self.scores = tf.nn.xw_plus_b(self.h_dropout, W_s, b_s, name="scores")
         self.prediction = tf.argmax(self.scores, 1, name='prediction')
 
         # 计算交叉熵
-        losses = tf.nn.softmax_cross_entropy_with_logits(self.scores, self.input_y)
+        losses = tf.nn.softmax_cross_entropy_with_logits(labels=self.input_y, logits=self.scores)
         self.loss = tf.reduce_mean(losses) + l2_reg_lamda * l2_loss
 
         # 准确率

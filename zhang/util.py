@@ -14,12 +14,7 @@ def load_w2v_dict():
     W_original = W_p[0]
     W = np.zeros((len(W_original)+1, 100))
     W[:len(W_original)] = W_original
-    print W_original[-1]
-    print W[-1]
-    print len(W_original)
-    print len(W)
-    print W[542255]
-    W2v_dict = tf.Variable(W_p[0], name='W2v_dict')
+    W2v_dict = tf.Variable(W, dtype=tf.float32, name='W2v_dict')
     return W2v_dict
 
 if __name__ == "__main__":
