@@ -46,7 +46,7 @@ class TextCNNModel(object):
             conv = tf.nn.conv2d(self.embedded_chars_expanded, W_conv, strides=[1, 1, 1, 1], padding='VALID',
                                 name='conv')
             # 使用激活函数进行非线性化
-            h = tf.nn.relu(tf.nn.bias_add(conv, b_conv), name='relu')
+            h = tf.nn.tanh(tf.nn.bias_add(conv, b_conv), name='tanh')
             # 最大池化层
             pooled = tf.nn.max_pool(h, ksize=[1, sequence_length - filter_size + 1, 1, 1], strides=[1, 1, 1, 1],
                                     padding='VALID', name='pool')

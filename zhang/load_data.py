@@ -64,7 +64,7 @@ def shuffled_data(x, y):
     shuffled_indices = np.random.permutation(np.arange(len(y)))
     x_shuffled = x[shuffled_indices]
     y_shuffled = y[shuffled_indices]
-    train_data_num = len(y)/100 * 95
+    train_data_num = len(y)/10 * 8
     data_train, train_label = x_shuffled[:train_data_num], y_shuffled[:train_data_num]
     data_test, test_label = x_shuffled[train_data_num:], y_shuffled[train_data_num:]
     return data_train, train_label, data_test, test_label

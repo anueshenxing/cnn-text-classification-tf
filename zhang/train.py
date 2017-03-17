@@ -13,6 +13,10 @@ reload(sys)
 sys.setdefaultencoding("utf-8")
 
 if __name__ == "__main__":
+    # 保存训练结果
+    predir = "/home/zhang/PycharmProjects/cnn-text-classification-tf/data_file/"
+    log_dir = predir + "log.txt"
+    log_file = open(log_dir, 'a')
     # Parameters
     # ==================================================
     # Model Hyperparameters
@@ -24,7 +28,7 @@ if __name__ == "__main__":
 
     # Training parameters
     tf.flags.DEFINE_integer("batch_size", 500, "Batch Size (default: 64)")
-    tf.flags.DEFINE_integer("num_epochs", 6, "Number of training epochs (default: 200)")
+    tf.flags.DEFINE_integer("num_epochs", 30, "Number of training epochs (default: 200)")
     tf.flags.DEFINE_integer("evaluate_every", 100, "Evaluate model on dev set after this many steps (default: 100)")
 
     # Misc Parameters
@@ -33,10 +37,13 @@ if __name__ == "__main__":
 
     FLAGS = tf.flags.FLAGS
     FLAGS._parse_flags()
+    log_file.write("Parameters:" + '\n')
     print("\nParameters:")
     for attr, value in sorted(FLAGS.__flags.items()):
+        log_file.write("{}={}".format(attr.upper(), value) + "\n")
         print("{}={}".format(attr.upper(), value))
     print("")
+    log_file.write('\n')
 
 
 
@@ -74,7 +81,8 @@ if __name__ == "__main__":
             [train_op, global_step, cnn.loss, cnn.accuracy],
             feed_dict)
         time_str = datetime.datetime.now().isoformat()
-        print("{}: step {}, loss {:g}, acc {:g}".format(time_str, step, loss, accuracy))
+        # print("{}: step {}, loss {:g}, acc {:g}".format(time_str, step, loss, accuracy))
+        log_file.write("{}: step {}, loss {:g}, acc {:g}".format(time_str, step, loss, accuracy) + "\n")
 
 
     def dev_step(x_batch, y_batch, writer=None):
@@ -90,7 +98,8 @@ if __name__ == "__main__":
             [global_step, cnn.loss, cnn.accuracy],
             feed_dict)
         time_str = datetime.datetime.now().isoformat()
-        print("{}: step {}, loss {:g}, acc {:g}".format(time_str, step, loss, accuracy))
+        # print("{}: step {}, loss {:g}, acc {:g}".format(time_str, step, loss, accuracy))
+        log_file.write("{}: step {}, loss {:g}, acc {:g}".format(time_str, step, loss, accuracy) + "\n")
 
     # Generate batches
     batches = load_data.batch_iter(
@@ -101,6 +110,6 @@ if __name__ == "__main__":
         train_step(x_batch, y_batch)
         current_step = tf.train.global_step(sess, global_step)
         if current_step % FLAGS.evaluate_every == 0:
-            print("\nEvaluation:")
+            # print("\nEvaluation:\n")
             dev_step(data_test, test_label)
-            print("")
+            # print("\n")
