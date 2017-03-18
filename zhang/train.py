@@ -1,9 +1,8 @@
 # coding=utf8
 import sys
 import time
-
+import os
 import datetime
-
 import load_data
 from CNNModel import TextCNNModel as TextCNN
 import cPickle
@@ -15,10 +14,11 @@ sys.setdefaultencoding("utf-8")
 if __name__ == "__main__":
     # 保存训练结果
     predir = "/home/zhang/PycharmProjects/cnn-text-classification-tf/data_file/"
-    log_dir = predir + "log1.txt"
+    train_model_dir = "word2vec_100_withoutKeyword_CNN_123/"
+    log_dir = predir + train_model_dir + "log.txt"
     log_file = open(log_dir, 'a')
     # 训练设置说明
-    instruction = ""
+    instruction = "word2vec训练的词向量，词向量维度为100，训练集为85000×0.8条新闻数据，无关键词"
     log_file.write(instruction + "\n\n\n")
     # Parameters
     # ==================================================
@@ -33,6 +33,7 @@ if __name__ == "__main__":
     tf.flags.DEFINE_integer("batch_size", 500, "Batch Size (default: 64)")
     tf.flags.DEFINE_integer("num_epochs", 30, "Number of training epochs (default: 200)")
     tf.flags.DEFINE_integer("evaluate_every", 100, "Evaluate model on dev set after this many steps (default: 100)")
+    tf.flags.DEFINE_integer("checkpoint_every", 100, "Evaluate model on dev set after this many steps (default: 100)")
 
     # Misc Parameters
     tf.flags.DEFINE_boolean("allow_soft_placement", True, "Allow device soft device placement")
@@ -68,6 +69,14 @@ if __name__ == "__main__":
     train_op = optimizer.apply_gradients(grads_and_vars, global_step=global_step)
 
     sess = tf.Session()
+
+    # Checkpoint directory. Tensorflow assumes this directory already exists so we need to create it
+    checkpoint_dir = log_dir + "checkpoint"
+    checkpoint_prefix = os.path.join(checkpoint_dir, "model")
+    if not os.path.exists(checkpoint_dir):
+        os.makedirs(checkpoint_dir)
+    saver = tf.train.Saver(tf.all_variables())
+
     # Initialize all variables
     sess.run(tf.initialize_all_variables())
 
@@ -116,5 +125,9 @@ if __name__ == "__main__":
             # print("\nEvaluation:\n")
             log_file.write("\nEvaluation:\n")
             dev_step(data_test, test_label)
-            log_file.write("\n")
             # print("\n")
+        if current_step % FLAGS.checkpoint_every == 0:
+            path = saver.save(sess, checkpoint_prefix, global_step=current_step)
+            # print("Saved model checkpoint to {}\n".format(path))
+            log_file.write("Saved model checkpoint to {}\n".format(path))
+            log_file.write("\n")
