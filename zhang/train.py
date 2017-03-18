@@ -5,9 +5,7 @@ import os
 import datetime
 import load_data
 from CNNModel import TextCNNModel as TextCNN
-import cPickle
 import tensorflow as tf
-import numpy as np
 reload(sys)
 sys.setdefaultencoding("utf-8")
 
