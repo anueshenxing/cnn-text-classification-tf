@@ -15,8 +15,11 @@ sys.setdefaultencoding("utf-8")
 if __name__ == "__main__":
     # 保存训练结果
     predir = "/home/zhang/PycharmProjects/cnn-text-classification-tf/data_file/"
-    log_dir = predir + "log.txt"
+    log_dir = predir + "log1.txt"
     log_file = open(log_dir, 'a')
+    # 训练设置说明
+    instruction = ""
+    log_file.write(instruction + "\n\n\n")
     # Parameters
     # ==================================================
     # Model Hyperparameters
@@ -111,5 +114,7 @@ if __name__ == "__main__":
         current_step = tf.train.global_step(sess, global_step)
         if current_step % FLAGS.evaluate_every == 0:
             # print("\nEvaluation:\n")
+            log_file.write("\nEvaluation:\n")
             dev_step(data_test, test_label)
+            log_file.write("\n")
             # print("\n")
