@@ -1,11 +1,14 @@
 # coding=utf8
+import datetime
+import os
 import sys
 import time
-import os
-import datetime
-import load_data
-from CNNModel import TextCNNModel as TextCNN
+
 import tensorflow as tf
+
+from CNNModel import TextCNNModel as TextCNN
+from util.util import load_data
+
 reload(sys)
 sys.setdefaultencoding("utf-8")
 

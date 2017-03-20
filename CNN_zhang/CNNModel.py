@@ -1,7 +1,9 @@
 # coding=utf8
 import sys
+
 import tensorflow as tf
-import util
+
+from util import util
 
 reload(sys)
 sys.setdefaultencoding("utf-8")

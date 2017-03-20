@@ -1,10 +1,7 @@
 # coding=utf8
-import os
-import time
-import datetime
 import tensorflow as tf
-import CNN_zhang.util as util
-from CNN_zhang.load_data import *
+import util.util as util
+from util.load_data import *
 
 reload(sys)
 sys.setdefaultencoding("utf-8")
