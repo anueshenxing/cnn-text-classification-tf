@@ -16,7 +16,7 @@ if __name__ == "__main__":
     log_dir = predir + train_model_dir + "log.txt"
     log_file = open(log_dir, 'a')
     # 训练设置说明
-    instruction = "word2vec训练的词向量，词向量维度为100，训练集为85000×0.8条新闻数据，无关键词"
+    instruction = "word2vec训练的词向量，词向量维度为100，训练集为85000×0.8条新闻数据，无关键词,模型为CNN"
     log_file.write(instruction + "\n\n\n")
     # Parameters
     # ==================================================

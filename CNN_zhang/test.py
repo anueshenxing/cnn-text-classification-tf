@@ -7,7 +7,7 @@ reload(sys)
 sys.setdefaultencoding("utf-8")
 
 if __name__ == "__main__":
-    predir = "/home/zhang/PycharmProjects/sentence_classify_zhang/data_file_2017/"
+    predir = "/home/CNN_zhang/PycharmProjects/sentence_classify_zhang/data_file_2017/"
     W_dir = predir + "word_vec_dict_true.p"
     word_ix_dir = predir + "wordtoix_and_ixtoword_true.p"
     W_p = cPickle.load(open(W_dir, 'rb'))

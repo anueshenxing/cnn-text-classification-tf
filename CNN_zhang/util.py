@@ -18,7 +18,7 @@ def load_w2v_dict():
     return W2v_dict
 
 if __name__ == "__main__":
-    # predir = "/home/zhang/PycharmProjects/sentence_classify_zhang/data_file_2017/"
+    # predir = "/home/CNN_zhang/PycharmProjects/sentence_classify_zhang/data_file_2017/"
     # W_dir = predir + "word_vec_dict_true.p"
     # W_p = cPickle.load(open(W_dir, 'rb'))
     # W = tf.Variable(W_p[0], name='w2v_dict')
