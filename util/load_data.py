@@ -25,10 +25,10 @@ def load_word_ix():
     return wordtoix, ixtoword
 
 
-def load_data():
-    predir = "/home/zhang/PycharmProjects/sentence_classify_zhang/data_file_2017/"
-    data_dir = predir + "news_title_category.p"
-    data_p = cPickle.load(open(data_dir, 'rb'))
+def load_data(sentence_data_dir):
+    # predir = "/home/zhang/PycharmProjects/sentence_classify_zhang/data_file_2017/"
+    # data_dir = predir + "news_title_category.p"
+    data_p = cPickle.load(open(sentence_data_dir, 'rb'))
     data = data_p[0]
     wordtoix, ixtoword = load_word_ix()
     ctg_dict = news_ctg_dict()
@@ -59,7 +59,7 @@ def load_data():
         for i in range(max_len - len(one_data)):
             one_data.append(542255)
             # print len(one_data)
-    return np.array(data_by_id), np.array(data_label)
+    return np.array(data_by_id)[:84600], np.array(data_label)[:84600], max_len
 
 
 def load_data_title_keywords():
@@ -133,7 +133,7 @@ def shuffled_data(x, y):
     shuffled_indices = np.random.permutation(np.arange(len(y)))
     x_shuffled = x[shuffled_indices]
     y_shuffled = y[shuffled_indices]
-    train_data_num = len(y) / 10 * 8
+    train_data_num = 70000
     data_train, train_label = x_shuffled[:train_data_num], y_shuffled[:train_data_num]
     data_test, test_label = x_shuffled[train_data_num:], y_shuffled[train_data_num:]
     return data_train, train_label, data_test, test_label
