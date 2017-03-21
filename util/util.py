@@ -4,6 +4,7 @@ import cPickle
 import numpy as np
 import tensorflow as tf
 
+
 reload(sys)
 sys.setdefaultencoding("utf-8")
 
@@ -16,6 +17,12 @@ def load_w2v_dict():
     W[:len(W_original)] = W_original
     W2v_dict = tf.Variable(W, dtype=tf.float32, name='W2v_dict')
     return W2v_dict
+
+def save_data(data, data_name):
+    predir = "/home/zhang/PycharmProjects/cnn-text-classification-tf/save_data/"
+    data_dir = predir + data_name + ".p"
+    cPickle.dump(data, open(data_dir, 'wb'), True)
+    return "saved successfully!"
 
 if __name__ == "__main__":
     # predir = "/home/CNN_zhang/PycharmProjects/sentence_classify_zhang/data_file_2017/"

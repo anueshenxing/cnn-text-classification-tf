@@ -4,7 +4,7 @@ import time
 import tensorflow as tf
 from CNNLSTMModel import TextCNNLSTMModel as TCNNLSTM
 from util.load_data import *
-
+from util.util import *
 reload(sys)
 sys.setdefaultencoding("utf-8")
 
@@ -17,7 +17,18 @@ if __name__ == "__main__":
     params['lstm_size'] = 100
     params['batch_size'] = 100
     params['num_epochs'] = 10
-    params['valid_freq'] = 100
+    params['valid_freq'] = 10
+    params['learning_rate'] = 0.001
+
+    step_of_train = []  # 训练步数
+    train_loss = []  # 训练loss数据
+    train_accuracy = []  # 训练accuracy数据
+
+    step_of_valid = []  # 训练次数
+    valid_loss = []  # 确认集loss数据
+    valid_accuracy = []  # 确认集accuracy数据
+
+    data_plot_name = "LSTM训练结果图"
 
     predir = "/home/zhang/PycharmProjects/cnn-text-classification-tf/data_file/"
     train_model_dir = "word2vec_100_withKeyword_LSTMCNN/"
@@ -38,7 +49,7 @@ if __name__ == "__main__":
     TCNNLSTM = TCNNLSTM(title_max_len, keywords_max_len, params)
     # 定义训练过程
     global_step = tf.Variable(0, name="global_step", trainable=False)
-    optimizer = tf.train.AdamOptimizer(1e-4)
+    optimizer = tf.train.AdamOptimizer(params['learning_rate'])
     grads_and_vars = optimizer.compute_gradients(TCNNLSTM.loss)
     train_op = optimizer.apply_gradients(grads_and_vars, global_step=global_step)
     print "CNN_LSTM模型构建完成" + time.asctime(time.localtime(time.time()))
@@ -61,8 +72,10 @@ if __name__ == "__main__":
             [train_op, global_step, TCNNLSTM.loss, TCNNLSTM.accuracy],
             feed_dict)
         time_str = datetime.datetime.now().isoformat()
+        train_loss.append(loss)
+        train_accuracy.append(accuracy)
+        step_of_train.append(step)
         print("{}: step {}, loss {:g}, acc {:g}".format(time_str, step, loss, accuracy))
-        # log_file.write("{}: step {}, loss {:g}, acc {:g}".format(time_str, step, loss, accuracy) + "\n")
 
 
     def dev_step(title_test, keywords_test, label_test, writer=None):
@@ -90,10 +103,12 @@ if __name__ == "__main__":
         time_str = datetime.datetime.now().isoformat()
         print("{}: loss {:g}, acc {:g}".format(time_str, loss_sum / num_b, accuracy_sum / num_b))
         log_file.write("{}: loss {:g}, acc {:g}".format(time_str, loss_sum / num_b, accuracy_sum / num_b) + '\n')
-
+        valid_accuracy.append(accuracy_sum / num_b)
+        valid_loss.append(loss_sum / num_b)
 
     # Generate batches
-    batches = batch_iter(list(zip(title_train, keywords_train, label_train)), params['batch_size'], params['num_epochs'])
+    batches = batch_iter(list(zip(title_train, keywords_train, label_train)), params['batch_size'],
+                         params['num_epochs'])
 
     for batch in batches:
         title_train_batch, keywords_train_batch, label_train_batch = zip(*batch)
@@ -101,12 +116,12 @@ if __name__ == "__main__":
         current_step = tf.train.global_step(sess, global_step)
         if current_step % params['valid_freq'] == 0:
             print("\nEvaluation:\n")
-            # log_file.write("\nEvaluation:\n")
             dev_step(title_test, keywords_test, label_test)
+            step_of_valid.append(current_step / params['valid_freq'])
             print("\n")
-            # log_file.write('\n')
-        # if current_step % 500 == 0:
-        #     path = saver.save(sess, checkpoint_prefix, global_step=current_step)
-        #     # print("Saved model checkpoint to {}\n".format(path))
-            # log_file.write("Saved model checkpoint to {}\n".format(path))
-            # log_file.write("\n")
+
+    train__ = [step_of_train, train_loss, train_accuracy]
+    valid__ = [step_of_valid, valid_loss, valid_accuracy]
+    save__ = [train__, train__]
+    name__ = "CNN_LSTM_Model_result"
+    save_data(save__, name__)
