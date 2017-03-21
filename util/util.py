@@ -20,7 +20,7 @@ def load_w2v_dict():
 
 def save_data(data, data_name):
     predir = "/home/zhang/PycharmProjects/cnn-text-classification-tf/save_data/"
-    data_dir = predir + data_name + ".p"
+    data_dir = predir + data_name
     cPickle.dump(data, open(data_dir, 'wb'), True)
     return "saved successfully!"
 

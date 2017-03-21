@@ -17,18 +17,15 @@ if __name__ == "__main__":
     params['lstm_size'] = 100
     params['batch_size'] = 100
     params['num_epochs'] = 10
-    params['valid_freq'] = 10
-    params['learning_rate'] = 0.001
+    params['valid_freq'] = 100
+    params['learning_rate'] = 0.0007
 
     step_of_train = []  # 训练步数
     train_loss = []  # 训练loss数据
     train_accuracy = []  # 训练accuracy数据
-
     step_of_valid = []  # 训练次数
     valid_loss = []  # 确认集loss数据
     valid_accuracy = []  # 确认集accuracy数据
-
-    data_plot_name = "LSTM训练结果图"
 
     predir = "/home/zhang/PycharmProjects/cnn-text-classification-tf/data_file/"
     train_model_dir = "word2vec_100_withKeyword_LSTMCNN/"
@@ -102,7 +99,6 @@ if __name__ == "__main__":
             accuracy_sum += accuracy
         time_str = datetime.datetime.now().isoformat()
         print("{}: loss {:g}, acc {:g}".format(time_str, loss_sum / num_b, accuracy_sum / num_b))
-        log_file.write("{}: loss {:g}, acc {:g}".format(time_str, loss_sum / num_b, accuracy_sum / num_b) + '\n')
         valid_accuracy.append(accuracy_sum / num_b)
         valid_loss.append(loss_sum / num_b)
 
@@ -122,6 +118,6 @@ if __name__ == "__main__":
 
     train__ = [step_of_train, train_loss, train_accuracy]
     valid__ = [step_of_valid, valid_loss, valid_accuracy]
-    save__ = [train__, train__]
-    name__ = "CNN_LSTM_Model_result"
+    save__ = [train__, valid__]
+    name__ = "CNN_LSTM_Model_result.p"
     save_data(save__, name__)

@@ -5,6 +5,7 @@ import time
 import tensorflow as tf
 from CNNModel import TextCNNModel as TCNN
 from util.load_data import *
+from util.util import *
 
 reload(sys)
 sys.setdefaultencoding("utf-8")
@@ -18,7 +19,16 @@ if __name__ == "__main__":
     params['batch_size'] = 100
     params['num_epochs'] = 10
     params['valid_freq'] = 100
+    params['learning_rate'] = 0.0007
     params['data_dir'] = "news_title_category_with_keywords.p"
+
+    step_of_train = []  # 训练步数
+    train_loss = []  # 训练loss数据
+    train_accuracy = []  # 训练accuracy数据
+    step_of_valid = []  # 训练次数
+    valid_loss = []  # 确认集loss数据
+    valid_accuracy = []  # 确认集accuracy数据
+
 
     print time.asctime(time.localtime(time.time())) + " 加载数据......"
     data_predir = "/home/zhang/PycharmProjects/sentence_classify_zhang/data_file_2017/"
@@ -26,31 +36,16 @@ if __name__ == "__main__":
     sentence_train, label_train, sentence_test, label_test = shuffled_data(all_sentence, all_label)
     print time.asctime(time.localtime(time.time())) + " 数据加载完成......"
 
-    predir = "/home/zhang/PycharmProjects/cnn-text-classification-tf/data_file/"
-    train_model_dir = "word2vec_100_withoutKeyword_CNN_123/"
-    log_dir = predir + train_model_dir + "log.txt"
-    log_file = open(log_dir, 'a')
-    instruction = "word2vec训练的词向量，词向量维度为100，训练集为85000×0.8条新闻数据，有键词，模型为LSTM+CNN"
-    log_file.write(instruction + "\n")
-
     print "构建CNN模型" + time.asctime(time.localtime(time.time()))
     cnn = TCNN(sentence_max_len, params)
     # 定义训练过程
     global_step = tf.Variable(0, name="global_step", trainable=False)
-    optimizer = tf.train.AdamOptimizer(1e-4)
+    optimizer = tf.train.AdamOptimizer(params['learning_rate'])
     grads_and_vars = optimizer.compute_gradients(cnn.loss)
     train_op = optimizer.apply_gradients(grads_and_vars, global_step=global_step)
     print "CNN_LSTM模型构建完成" + time.asctime(time.localtime(time.time()))
 
     sess = tf.Session()
-
-    # # Checkpoint directory. Tensorflow assumes this directory already exists so we need to create it
-    # checkpoint_dir = log_dir + "checkpoint"
-    # checkpoint_prefix = os.path.join(checkpoint_dir, "model")
-    # if not os.path.exists(checkpoint_dir):
-    #     os.makedirs(checkpoint_dir)
-    # saver = tf.train.Saver(tf.all_variables())
-
     sess.run(tf.initialize_all_variables())
 
     def train_step(sentence_batch, label_batch):
@@ -65,9 +60,11 @@ if __name__ == "__main__":
         _, step, loss, accuracy = sess.run(
             [train_op, global_step, cnn.loss, cnn.accuracy],
             feed_dict)
+        train_loss.append(loss)
+        train_accuracy.append(accuracy)
+        step_of_train.append(step)
         time_str = datetime.datetime.now().isoformat()
         print("{}: step {}, loss {:g}, acc {:g}".format(time_str, step, loss, accuracy))
-        # log_file.write("{}: step {}, loss {:g}, acc {:g}".format(time_str, step, loss, accuracy) + "\n")
 
     def dev_step(sentence_test, label_test, writer=None):
         """
@@ -92,7 +89,8 @@ if __name__ == "__main__":
             accuracy_sum += accuracy
         time_str = datetime.datetime.now().isoformat()
         print("{}: loss {:g}, acc {:g}".format(time_str, loss_sum / num_b, accuracy_sum / num_b))
-        log_file.write("{}: loss {:g}, acc {:g}".format(time_str, loss_sum / num_b, accuracy_sum / num_b) + '\n')
+        valid_accuracy.append(accuracy_sum / num_b)
+        valid_loss.append(loss_sum / num_b)
 
     # Generate batches
     batches = batch_iter(list(zip(sentence_train, label_train)), params['batch_size'], params['num_epochs'])
@@ -102,13 +100,12 @@ if __name__ == "__main__":
         train_step(title_train_batch, label_train_batch)
         current_step = tf.train.global_step(sess, global_step)
         if current_step % params['valid_freq'] == 0:
+            step_of_valid.append(current_step / params['valid_freq'])
             print("\nEvaluation:\n")
-            # log_file.write("\nEvaluation:\n")
             dev_step(sentence_test, label_test)
             print("\n")
-            # log_file.write('\n')
-        # if current_step % 500 == 0:
-        #     path = saver.save(sess, checkpoint_prefix, global_step=current_step)
-        #     # print("Saved model checkpoint to {}\n".format(path))
-            # log_file.write("Saved model checkpoint to {}\n".format(path))
-            # log_file.write("\n")
+    train__ = [step_of_train, train_loss, train_accuracy]
+    valid__ = [step_of_valid, valid_loss, valid_accuracy]
+    save__ = [train__, valid__]
+    name__ = "CNN_" + "LSTM_" + params['data_dir']
+    save_data(save__, name__)
