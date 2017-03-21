@@ -51,7 +51,7 @@ def plot_data_train_loss(data_train, data_valid, file_name):
                 x_axis_label='valid_num', y_axis_label='accuracy')
     p4.line(step_of_valid, accuracy_of_valid, legend="CNN+LSTM", color="firebrick", line_width=2)
 
-    p5 = figure(width=500, plot_height=300, title="compare",
+    p5 = figure(width=1000, plot_height=500, title="compare",
                 x_axis_label='step_num', y_axis_label='')
 
     p5.line(step_of_train, loss_of_train, legend="loss", color='firebrick')
