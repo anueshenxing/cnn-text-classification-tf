@@ -207,5 +207,5 @@ def CNN(CNN_data_dir):
     train__ = [step_of_train, train_loss, train_accuracy]
     valid__ = [step_of_valid, valid_loss, valid_accuracy]
     save__ = [train__, valid__]
-    name__ = "CNN_" + "LSTM_" + params['data_dir']
+    name__ = "CNN_" + params['data_dir']
     save_data(save__, name__)

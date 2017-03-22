@@ -10,10 +10,10 @@ reload(sys)
 sys.setdefaultencoding("utf-8")
 
 if __name__ == "__main__":
-    data_dir = ["news_title_category_with_keywords.p", "news_title_category.p"]
-    CNN_LSTM()
+    data_dir = ["news_title_category.p"]
     for d_dir in data_dir:
         LSTM(d_dir)
+        time.sleep(10)
         CNN(d_dir)
-
+        time.sleep(10)
 
