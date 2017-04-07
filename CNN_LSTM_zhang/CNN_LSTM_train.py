@@ -131,9 +131,9 @@ def CNN_LSTM():
     params['num_filters'] = 100
     params['lstm_size'] = 100
     params['batch_size'] = 100
-    params['num_epochs'] = 10
+    params['num_epochs'] = 30
     params['valid_freq'] = 100
-    params['learning_rate'] = 0.0007
+    params['learning_rate'] = 0.01
 
     step_of_train = []  # 训练步数
     train_loss = []  # 训练loss数据
@@ -178,7 +178,8 @@ def CNN_LSTM():
         train_loss.append(loss)
         train_accuracy.append(accuracy)
         step_of_train.append(step)
-        # print("{}: step {}, loss {:g}, acc {:g}".format(time_str, step, loss, accuracy))
+        if step % 700 == 0:
+            print("{}: step {}, loss {:g}, acc {:g}".format(time_str, step, loss, accuracy))
 
 
     def dev_step(title_test, keywords_test, label_test, writer=None):
@@ -216,14 +217,15 @@ def CNN_LSTM():
         title_train_batch, keywords_train_batch, label_train_batch = zip(*batch)
         train_step(title_train_batch, keywords_train_batch, label_train_batch)
         current_step = tf.train.global_step(sess, global_step)
-        if current_step % params['valid_freq'] == 0:
-            print("\nCNN_LSTM Evaluation:\n")
-            dev_step(title_test, keywords_test, label_test)
-            step_of_valid.append(current_step / params['valid_freq'])
-            print("\n")
+
+        # if current_step % params['valid_freq'] == 0:
+        #     print("\nCNN_LSTM Evaluation:\n")
+        #     dev_step(title_test, keywords_test, label_test)
+        #     step_of_valid.append(current_step / params['valid_freq'])
+        #     print("\n")
 
     train__ = [step_of_train, train_loss, train_accuracy]
     valid__ = [step_of_valid, valid_loss, valid_accuracy]
     save__ = [train__, valid__]
-    name__ = "CNN_LSTM_Model_result.p"
+    name__ = "dropout_CNN_LSTM_Model_result_0.1.p"
     save_data(save__, name__)
