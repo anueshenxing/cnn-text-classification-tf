@@ -1,8 +1,6 @@
 # coding=utf8
 import datetime
-import os
 import time
-import tensorflow as tf
 from CNNModel import TextCNNModel as TCNN
 from util.load_data import *
 from util.util import *
